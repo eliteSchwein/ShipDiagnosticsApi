@@ -21,13 +21,12 @@ this = sys.modules[__name__]
 this.version: str = "0.0.1"
 this.cmdr_name: str = None
 
-#config
+# Config
 this.port: str = None
 this.ip: str = None
 this.no_proxy: bool = False
 
-# UI elements
-# Preferences
+# Settings
 this.port_entry: nb.Entry = None
 this.ip_entry: nb.Entry = None
 this.no_proxy_entry: nb.Entry = None
@@ -35,15 +34,15 @@ this.port_tk: tk.StringVar = tk.StringVar(master=None, value="6009")
 this.ip_tk: tk.StringVar = tk.StringVar(master=None, value="127.0.0.1")
 this.no_proxy_tk: tk.BooleanVar = tk.BooleanVar(master=None, value=False)
 
-# setup logging
+# Plugin Meta
 plugin_name: str = os.path.basename(os.path.dirname(__file__))
 
-# webserver
+# API Webserver
 api_server: HTTPServer = None
 
 this.thread: Optional[Thread] = None
 
-# setup logging
+# Logging
 plugin_name: str = os.path.basename(os.path.dirname(__file__))
 
 logger = logging.getLogger(f'{appname}.{plugin_name}')
@@ -82,6 +81,7 @@ FlagsAverageAltitude = 1 << 29  # Altitude from Average radius
 FlagsFsdJump = 1 << 30
 FlagsSrvHighBeam = 1 << 31
 
+# JSON Data
 this.data: str = None
 
 
