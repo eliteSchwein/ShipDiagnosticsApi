@@ -169,6 +169,32 @@ def dashboard_entry(cmdr, is_beta, entry):
     data['scoop_deployed'] = (entry['Flags'] & FlagsCargoScoopDeployed) > 0
     data['hardpoint_deployed'] = (entry['Flags'] & FlagsHardpointsDeployed) > 0
     data['in_ship'] = (entry['Flags'] & FlagsInMainShip) > 0
+    data['ship_docked'] = (entry['Flags'] & FlagsDocked) > 0
+    data['ship_landed'] = (entry['Flags'] & FlagsLanded) > 0
+    data['shields_up'] = (entry['Flags'] & FlagsSupercruise) > 0
+    data['flight_fa_off'] = (entry['Flags'] & FlagsFlightAssistOff) > 0
+    data['in_wing'] = (entry['Flags'] & FlagsInWing) > 0
+    data['lights_on'] = (entry['Flags'] & FlagsLightsOn) > 0
+    data['silent_running'] = (entry['Flags'] & FlagsSilentRunning) > 0
+    data['scooping_fuel'] = (entry['Flags'] & FlagsScoopingFuel) > 0
+    data['srv_handbreak'] = (entry['Flags'] & FlagsSrvHandbrake) > 0
+    data['srv_turret'] = (entry['Flags'] & FlagsSrvTurret) > 0
+    data['srv_under_ship'] = (entry['Flags'] & FlagsSrvUnderShip) > 0
+    data['srv_fa_on'] = (entry['Flags'] & FlagsSrvDriveAssist) > 0
+    data['mass_lock'] = (entry['Flags'] & FlagsFsdMassLocked) > 0
+    data['fsd_charge'] = (entry['Flags'] & FlagsFsdCharging) > 0
+    data['fsd_cooldown'] = (entry['Flags'] & FlagsFsdCooldown) > 0
+    data['low_fuel'] = (entry['Flags'] & FlagsLowFuel) > 0
+    data['over_heat'] = (entry['Flags'] & FlagsOverHeating) > 0
+    data['hud_lat_long'] = (entry['Flags'] & FlagsHasLatLong) > 0
+    data['in_danger'] = (entry['Flags'] & FlagsIsInDanger) > 0
+    data['being_intercepted'] = (entry['Flags'] & FlagsBeingInterdicted) > 0
+    data['in_fighter'] = (entry['Flags'] & FlagsInFighter) > 0
+    data['in_srv'] = (entry['Flags'] & FlagsInSRV) > 0
+    data['hud_analysis'] = (entry['Flags'] & FlagsAnalysisMode) > 0
+    data['hud_night_vision'] = (entry['Flags'] & FlagsNightVision) > 0
+    data['fsd_jump'] = (entry['Flags'] & FlagsFsdJump) > 0
+    data['srv_high_beam'] = (entry['Flags'] & FlagsSrvHighBeam) > 0
     this.data = json.dumps(data)
 
 
