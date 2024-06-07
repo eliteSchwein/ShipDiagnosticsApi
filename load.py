@@ -4,7 +4,6 @@ import os.path
 import myNotebook as nb
 import logging
 import json
-import socket
 
 from tkinter import ttk
 from threading import Thread, Timer, Event
@@ -82,7 +81,46 @@ FlagsFsdJump = 1 << 30
 FlagsSrvHighBeam = 1 << 31
 
 # JSON Data
-this.data: str = None
+this.data = {
+    'gear_down': False,
+    'scoop_deployed': False,
+    'hardpoint_deployed': False,
+    'in_ship': False,
+    'ship_docked': False,
+    'ship_landed': False,
+    'shields_up': False,
+    'flight_fa_off': False,
+    'in_wing': False,
+    'lights_on': False,
+    'silent_running': False,
+    'scooping_fuel': False,
+    'srv_handbreak': False,
+    'srv_turret': False,
+    'srv_under_ship': False,
+    'srv_fa_on': False,
+    'mass_lock': False,
+    'fsd_charge': False,
+    'fsd_cooldown': False,
+    'low_fuel': False,
+    'over_heat': False,
+    'hud_lat_long': False,
+    'in_danger': False,
+    'being_intercepted': False,
+    'in_fighter': False,
+    'in_srv': False,
+    'hud_analysis': False,
+    'hud_night_vision': False,
+    'fsd_jump': False,
+    'srv_high_beam': False
+}
+
+KEEP_SERVER = True
+RESET_SERVER = False
+old_ip = ''
+
+
+def keep_server():
+    return KEEP_SERVER and RESET_SERVER != True
 
 
 def plugin_prefs(parent: tk.Tk, cmdr: str, is_beta: bool) -> tk.Frame:
@@ -125,7 +163,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     this.ip = this.ip_tk.get().strip()
     this.port = this.port_tk.get().strip()
     this.no_proxy = this.no_proxy_tk.get()
-    start_api()
+    this.RESET_SERVER = True
 
 
 def plugin_stop() -> None:
@@ -156,46 +194,41 @@ def load_config() -> None:
     ip = '127.0.0.1'
 
     if this.no_proxy:
-        hostname = socket.gethostname()
-        ip = socket.gethostbyname(hostname)
+        ip = '0.0.0.0'
 
     this.ip = f'http://{ip}:{this.port}'
     config.set(f'sda_ip', this.ip)
 
 
 def dashboard_entry(cmdr, is_beta, entry):
-    data = {}
-    data['gear_down'] = (entry['Flags'] & FlagsLandingGearDown) > 0
-    data['scoop_deployed'] = (entry['Flags'] & FlagsCargoScoopDeployed) > 0
-    data['hardpoint_deployed'] = (entry['Flags'] & FlagsHardpointsDeployed) > 0
-    data['in_ship'] = (entry['Flags'] & FlagsInMainShip) > 0
-    data['ship_docked'] = (entry['Flags'] & FlagsDocked) > 0
-    data['ship_landed'] = (entry['Flags'] & FlagsLanded) > 0
-    data['shields_up'] = (entry['Flags'] & FlagsSupercruise) > 0
-    data['flight_fa_off'] = (entry['Flags'] & FlagsFlightAssistOff) > 0
-    data['in_wing'] = (entry['Flags'] & FlagsInWing) > 0
-    data['lights_on'] = (entry['Flags'] & FlagsLightsOn) > 0
-    data['silent_running'] = (entry['Flags'] & FlagsSilentRunning) > 0
-    data['scooping_fuel'] = (entry['Flags'] & FlagsScoopingFuel) > 0
-    data['srv_handbreak'] = (entry['Flags'] & FlagsSrvHandbrake) > 0
-    data['srv_turret'] = (entry['Flags'] & FlagsSrvTurret) > 0
-    data['srv_under_ship'] = (entry['Flags'] & FlagsSrvUnderShip) > 0
-    data['srv_fa_on'] = (entry['Flags'] & FlagsSrvDriveAssist) > 0
-    data['mass_lock'] = (entry['Flags'] & FlagsFsdMassLocked) > 0
-    data['fsd_charge'] = (entry['Flags'] & FlagsFsdCharging) > 0
-    data['fsd_cooldown'] = (entry['Flags'] & FlagsFsdCooldown) > 0
-    data['low_fuel'] = (entry['Flags'] & FlagsLowFuel) > 0
-    data['over_heat'] = (entry['Flags'] & FlagsOverHeating) > 0
-    data['hud_lat_long'] = (entry['Flags'] & FlagsHasLatLong) > 0
-    data['in_danger'] = (entry['Flags'] & FlagsIsInDanger) > 0
-    data['being_intercepted'] = (entry['Flags'] & FlagsBeingInterdicted) > 0
-    data['in_fighter'] = (entry['Flags'] & FlagsInFighter) > 0
-    data['in_srv'] = (entry['Flags'] & FlagsInSRV) > 0
-    data['hud_analysis'] = (entry['Flags'] & FlagsAnalysisMode) > 0
-    data['hud_night_vision'] = (entry['Flags'] & FlagsNightVision) > 0
-    data['fsd_jump'] = (entry['Flags'] & FlagsFsdJump) > 0
-    data['srv_high_beam'] = (entry['Flags'] & FlagsSrvHighBeam) > 0
-    this.data = json.dumps(data)
+    this.data = {'gear_down': (entry['Flags'] & FlagsLandingGearDown) > 0,
+                 'scoop_deployed': (entry['Flags'] & FlagsCargoScoopDeployed) > 0,
+                 'hardpoint_deployed': (entry['Flags'] & FlagsHardpointsDeployed) > 0,
+                 'in_ship': (entry['Flags'] & FlagsInMainShip) > 0, 'ship_docked': (entry['Flags'] & FlagsDocked) > 0,
+                 'ship_landed': (entry['Flags'] & FlagsLanded) > 0,
+                 'shields_up': (entry['Flags'] & FlagsSupercruise) > 0,
+                 'flight_fa_off': (entry['Flags'] & FlagsFlightAssistOff) > 0,
+                 'in_wing': (entry['Flags'] & FlagsInWing) > 0,
+                 'lights_on': (entry['Flags'] & FlagsLightsOn) > 0,
+                 'silent_running': (entry['Flags'] & FlagsSilentRunning) > 0,
+                 'scooping_fuel': (entry['Flags'] & FlagsScoopingFuel) > 0,
+                 'srv_handbreak': (entry['Flags'] & FlagsSrvHandbrake) > 0,
+                 'srv_turret': (entry['Flags'] & FlagsSrvTurret) > 0,
+                 'srv_under_ship': (entry['Flags'] & FlagsSrvUnderShip) > 0,
+                 'srv_fa_on': (entry['Flags'] & FlagsSrvDriveAssist) > 0,
+                 'mass_lock': (entry['Flags'] & FlagsFsdMassLocked) > 0,
+                 'fsd_charge': (entry['Flags'] & FlagsFsdCharging) > 0,
+                 'fsd_cooldown': (entry['Flags'] & FlagsFsdCooldown) > 0,
+                 'low_fuel': (entry['Flags'] & FlagsLowFuel) > 0,
+                 'over_heat': (entry['Flags'] & FlagsOverHeating) > 0,
+                 'hud_lat_long': (entry['Flags'] & FlagsHasLatLong) > 0,
+                 'in_danger': (entry['Flags'] & FlagsIsInDanger) > 0,
+                 'being_intercepted': (entry['Flags'] & FlagsBeingInterdicted) > 0,
+                 'in_fighter': (entry['Flags'] & FlagsInFighter) > 0, 'in_srv': (entry['Flags'] & FlagsInSRV) > 0,
+                 'hud_analysis': (entry['Flags'] & FlagsAnalysisMode) > 0,
+                 'hud_night_vision': (entry['Flags'] & FlagsNightVision) > 0,
+                 'fsd_jump': (entry['Flags'] & FlagsFsdJump) > 0,
+                 'srv_high_beam': (entry['Flags'] & FlagsSrvHighBeam) > 0}
 
 
 def start_api() -> None:
@@ -222,18 +255,35 @@ class ApiServer(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(bytes(this.data, "utf-8"))
+        self.wfile.write(bytes(json.dumps(this.data), "utf-8"))
 
 
 def worker() -> None:
-    ip = '0.0.0.0'
+    def init_server() -> None:
+        if not this.KEEP_SERVER:
+            return None
 
-    if not this.no_proxy:
-        ip = '127.0.0.1'
+        ip = '0.0.0.0'
 
-    logger.info(f'launch api server: http://{ip}:{this.port}')
-    this.api_server = HTTPServer((ip, int(this.port)), ApiServer)
-    try:
-        this.api_server.serve_forever()
-    except:
-        pass
+        if not this.no_proxy:
+            ip = '127.0.0.1'
+
+        if ip == this.old_ip:
+            return None
+
+        this.RESET_SERVER = False
+
+        this.old_ip = ip
+
+        logger.info(f'launch api server: http://{ip}:{this.port}')
+        this.api_server = HTTPServer((ip, int(this.port)), ApiServer)
+
+        while keep_server():
+            if ip != this.old_ip:
+                this.RESET_SERVER = True
+                init_server()
+                return None
+
+            this.api_server.handle_request()
+
+    init_server()
