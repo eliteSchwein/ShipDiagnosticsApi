@@ -114,14 +114,6 @@ this.data = {
     'srv_high_beam': False
 }
 
-KEEP_SERVER = True
-RESET_SERVER = False
-old_ip = ''
-
-
-def keep_server():
-    return KEEP_SERVER and RESET_SERVER != True
-
 
 def plugin_prefs(parent: tk.Tk, cmdr: str, is_beta: bool) -> tk.Frame:
     this.cmdr_name = cmdr
@@ -163,10 +155,10 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     this.ip = this.ip_tk.get().strip()
     this.port = this.port_tk.get().strip()
     this.no_proxy = this.no_proxy_tk.get()
-    this.RESET_SERVER = True
 
 
 def plugin_stop() -> None:
+    this.keep_server = False
     this.api_server.server_close()
     this.api_server = None
     this.thread.join()
@@ -252,6 +244,15 @@ class ApiServer(BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
+        requester_ip = self.client_address[0]
+
+        if not this.no_proxy and requester_ip != '127.0.0.1':
+            self.send_response(401)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(bytes(json.dumps({'error': 'no proxy mode active!'}), "utf-8"))
+            return
+
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
@@ -260,30 +261,17 @@ class ApiServer(BaseHTTPRequestHandler):
 
 def worker() -> None:
     def init_server() -> None:
-        if not this.KEEP_SERVER:
-            return None
-
         ip = '0.0.0.0'
 
         if not this.no_proxy:
             ip = '127.0.0.1'
 
-        if ip == this.old_ip:
-            return None
-
-        this.RESET_SERVER = False
-
-        this.old_ip = ip
-
         logger.info(f'launch api server: http://{ip}:{this.port}')
-        this.api_server = HTTPServer((ip, int(this.port)), ApiServer)
+        this.api_server = HTTPServer(('0.0.0.0', int(this.port)), ApiServer)
 
-        while keep_server():
-            if ip != this.old_ip:
-                this.RESET_SERVER = True
-                init_server()
-                return None
-
-            this.api_server.handle_request()
+        try:
+            this.api_server.serve_forever()
+        except:
+            pass
 
     init_server()
