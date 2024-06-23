@@ -159,6 +159,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
 def plugin_stop() -> None:
     this.api_server.server_close()
+    this.api_server.shutdown()
     this.api_server = None
 
     if this.thread:
@@ -231,6 +232,7 @@ def start_api() -> None:
 
     if this.api_server is not None:
         this.api_server.server_close()
+        this.api_server.shutdown()
         this.api_server = None
 
     if this.thread is not None:
@@ -261,6 +263,17 @@ class ApiServer(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(json.dumps(this.data), "utf-8"))
 
+class StoppableHTTPServer(HTTPServer):
+    def run(self):
+        try:
+            self.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            # Clean-up server (close socket, etc.)
+            self.server_close()
+
+
 
 def worker() -> None:
     def init_server() -> None:
@@ -270,11 +283,8 @@ def worker() -> None:
             ip = '127.0.0.1'
 
         logger.info(f'launch api server: http://{ip}:{this.port}')
-        this.api_server = HTTPServer(('0.0.0.0', int(this.port)), ApiServer)
+        this.api_server = StoppableHTTPServer(('0.0.0.0', int(this.port)), ApiServer)
 
-        try:
-            this.api_server.serve_forever()
-        except:
-            pass
+        this.api_server.run()
 
     init_server()
