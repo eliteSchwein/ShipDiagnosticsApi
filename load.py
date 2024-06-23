@@ -161,8 +161,12 @@ def plugin_stop() -> None:
     this.keep_server = False
     this.api_server.server_close()
     this.api_server = None
-    this.thread.join()
-    this.thread = None
+
+    if this.thread:
+        this.thread.join(timeout=5)  # Set a timeout for join
+        if this.thread.is_alive():
+            print("Thread did not terminate in time.")
+        this.thread = None
 
 
 def plugin_start3(plugin_dir: str) -> str:
