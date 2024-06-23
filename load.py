@@ -158,7 +158,6 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
 
 def plugin_stop() -> None:
-    this.keep_server = False
     this.api_server.server_close()
     this.api_server = None
 
