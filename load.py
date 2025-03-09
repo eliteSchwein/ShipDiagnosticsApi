@@ -248,7 +248,6 @@ def load_config() -> None:
 
 
 def dashboard_entry(cmdr, is_beta, entry):
-    print(entry)
     this.data = {
         # Flags
         'gear_down': (entry['Flags'] & FlagsLandingGearDown) > 0,
