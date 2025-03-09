@@ -80,8 +80,34 @@ FlagsAverageAltitude = 1 << 29  # Altitude from Average radius
 FlagsFsdJump = 1 << 30
 FlagsSrvHighBeam = 1 << 31
 
+# Status.json / Dashboard flags2
+Flags2OnFoot = 1 << 0
+Flags2InTaxi = 1 << 1  # (or dropship/shuttle)
+Flags2InMulticrew = 1 << 2  # (ie in someone else’s ship)
+Flags2OnFootInStation = 1 << 3
+Flags2OnFootOnPlanet = 1 << 4
+Flags2AimDownSight = 1 << 5
+Flags2LowOxygen = 1 << 6
+Flags2LowHealth = 1 << 7
+Flags2Cold = 1 << 8
+Flags2Hot = 1 << 9
+Flags2VeryCold = 1 << 10
+Flags2VeryHot = 1 << 11
+Flags2GlideMode = 1 << 12
+Flags2OnFootInHangar = 1 << 13
+Flags2OnFootSocialSpace = 1 << 14
+Flags2OnFootExterior = 1 << 15
+Flags2BreathableAtmosphere = 1 << 16
+Flags2TeleMulticrew = 1 << 17
+Flags2PhysicalMulticrew = 1 << 18
+Flags2FsdHyperjumpCharging = 1 << 19
+#Flags2NpcActive = 1 << 20
+#Flags2SupercruiseOvercharge = 1 << 21
+#Flags2SupercruiseAssist = 1 << 22
+
 # JSON Data
 this.data = {
+    # Flags
     'gear_down': False,
     'scoop_deployed': False,
     'hardpoint_deployed': False,
@@ -112,7 +138,31 @@ this.data = {
     'hud_analysis': False,
     'hud_night_vision': False,
     'fsd_jump': False,
-    'srv_high_beam': False
+    'srv_high_beam': False,
+    # Flags2
+    'on_foot': False,
+    'in_taxi': False,
+    'in_multicrew': False,
+    'on_foot_in_station': False,
+    'on_foot_on_plane': False,
+    'aim_down_sign': False,
+    'low_oxygen': False,
+    'low_health': False,
+    'atmosphere_cold': False,
+    'atmosphere_hot': False,
+    'atmosphere_very_cold': False,
+    'atmosphere_very_hot': False,
+    'glide_mode': False,
+    'on_foot_in_hangar': False,
+    'on_foot_social_space': False,
+    'on_foot_exterior': False,
+    'atmosphere_breathable': False,
+    'is_tele_multicrew': False,
+    'is_physical_multicrew': False,
+    'fsd_hyperspace_charge': False,
+#    'npc_active': False,
+#    'supercruise_overcharge_active': False,
+#    'supercruise_assist_active': False,
 }
 
 
@@ -198,37 +248,64 @@ def load_config() -> None:
 
 
 def dashboard_entry(cmdr, is_beta, entry):
-    this.data = {'gear_down': (entry['Flags'] & FlagsLandingGearDown) > 0,
-                 'scoop_deployed': (entry['Flags'] & FlagsCargoScoopDeployed) > 0,
-                 'hardpoint_deployed': (entry['Flags'] & FlagsHardpointsDeployed) > 0,
-                 'in_ship': (entry['Flags'] & FlagsInMainShip) > 0,
-                 'ship_docked': (entry['Flags'] & FlagsDocked) > 0,
-                 'ship_landed': (entry['Flags'] & FlagsLanded) > 0,
-                 'shields_up': (entry['Flags'] & FlagsShieldsUp) > 0,
-                 'in_supercruise': (entry['Flags'] & FlagsSupercruise) > 0,
-                 'flight_fa_off': (entry['Flags'] & FlagsFlightAssistOff) > 0,
-                 'in_wing': (entry['Flags'] & FlagsInWing) > 0,
-                 'lights_on': (entry['Flags'] & FlagsLightsOn) > 0,
-                 'silent_running': (entry['Flags'] & FlagsSilentRunning) > 0,
-                 'scooping_fuel': (entry['Flags'] & FlagsScoopingFuel) > 0,
-                 'srv_handbrake': (entry['Flags'] & FlagsSrvHandbrake) > 0,
-                 'srv_turret': (entry['Flags'] & FlagsSrvTurret) > 0,
-                 'srv_under_ship': (entry['Flags'] & FlagsSrvUnderShip) > 0,
-                 'srv_fa_on': (entry['Flags'] & FlagsSrvDriveAssist) > 0,
-                 'mass_lock': (entry['Flags'] & FlagsFsdMassLocked) > 0,
-                 'fsd_charge': (entry['Flags'] & FlagsFsdCharging) > 0,
-                 'fsd_cooldown': (entry['Flags'] & FlagsFsdCooldown) > 0,
-                 'low_fuel': (entry['Flags'] & FlagsLowFuel) > 0,
-                 'over_heat': (entry['Flags'] & FlagsOverHeating) > 0,
-                 'hud_lat_long': (entry['Flags'] & FlagsHasLatLong) > 0,
-                 'in_danger': (entry['Flags'] & FlagsIsInDanger) > 0,
-                 'being_intercepted': (entry['Flags'] & FlagsBeingInterdicted) > 0,
-                 'in_fighter': (entry['Flags'] & FlagsInFighter) > 0,
-                 'in_srv': (entry['Flags'] & FlagsInSRV) > 0,
-                 'hud_analysis': (entry['Flags'] & FlagsAnalysisMode) > 0,
-                 'hud_night_vision': (entry['Flags'] & FlagsNightVision) > 0,
-                 'fsd_jump': (entry['Flags'] & FlagsFsdJump) > 0,
-                 'srv_high_beam': (entry['Flags'] & FlagsSrvHighBeam) > 0}
+    print(entry)
+    this.data = {
+        # Flags
+        'gear_down': (entry['Flags'] & FlagsLandingGearDown) > 0,
+        'scoop_deployed': (entry['Flags'] & FlagsCargoScoopDeployed) > 0,
+        'hardpoint_deployed': (entry['Flags'] & FlagsHardpointsDeployed) > 0,
+        'in_ship': (entry['Flags'] & FlagsInMainShip) > 0,
+        'ship_docked': (entry['Flags'] & FlagsDocked) > 0,
+        'ship_landed': (entry['Flags'] & FlagsLanded) > 0,
+        'shields_up': (entry['Flags'] & FlagsShieldsUp) > 0,
+        'in_supercruise': (entry['Flags'] & FlagsSupercruise) > 0,
+        'flight_fa_off': (entry['Flags'] & FlagsFlightAssistOff) > 0,
+        'in_wing': (entry['Flags'] & FlagsInWing) > 0,
+        'lights_on': (entry['Flags'] & FlagsLightsOn) > 0,
+        'silent_running': (entry['Flags'] & FlagsSilentRunning) > 0,
+        'scooping_fuel': (entry['Flags'] & FlagsScoopingFuel) > 0,
+        'srv_handbrake': (entry['Flags'] & FlagsSrvHandbrake) > 0,
+        'srv_turret': (entry['Flags'] & FlagsSrvTurret) > 0,
+        'srv_under_ship': (entry['Flags'] & FlagsSrvUnderShip) > 0,
+        'srv_fa_on': (entry['Flags'] & FlagsSrvDriveAssist) > 0,
+        'mass_lock': (entry['Flags'] & FlagsFsdMassLocked) > 0,
+        'fsd_charge': (entry['Flags'] & FlagsFsdCharging) > 0,
+        'fsd_cooldown': (entry['Flags'] & FlagsFsdCooldown) > 0,
+        'low_fuel': (entry['Flags'] & FlagsLowFuel) > 0,
+        'over_heat': (entry['Flags'] & FlagsOverHeating) > 0,
+        'hud_lat_long': (entry['Flags'] & FlagsHasLatLong) > 0,
+        'in_danger': (entry['Flags'] & FlagsIsInDanger) > 0,
+        'being_intercepted': (entry['Flags'] & FlagsBeingInterdicted) > 0,
+        'in_fighter': (entry['Flags'] & FlagsInFighter) > 0,
+        'in_srv': (entry['Flags'] & FlagsInSRV) > 0,
+        'hud_analysis': (entry['Flags'] & FlagsAnalysisMode) > 0,
+        'hud_night_vision': (entry['Flags'] & FlagsNightVision) > 0,
+        'fsd_jump': (entry['Flags'] & FlagsFsdJump) > 0,
+        'srv_high_beam': (entry['Flags'] & FlagsSrvHighBeam) > 0,
+        # Flags2
+        'on_foot': (entry['Flags2'] & Flags2OnFoot) > 0,
+        'in_taxi': (entry['Flags2'] & Flags2InTaxi) > 0,
+        'in_multicrew': (entry['Flags2'] & Flags2InMulticrew) > 0,
+        'on_foot_in_station': (entry['Flags2'] & Flags2OnFootInStation) > 0,
+        'on_foot_on_plane': (entry['Flags2'] & Flags2OnFootOnPlanet) > 0,
+        'aim_down_sign': (entry['Flags2'] & Flags2AimDownSight) > 0,
+        'low_oxygen': (entry['Flags2'] & Flags2LowOxygen) > 0,
+        'low_health': (entry['Flags2'] & Flags2LowHealth) > 0,
+        'atmosphere_cold': (entry['Flags2'] & Flags2Cold) > 0,
+        'atmosphere_hot': (entry['Flags2'] & Flags2Hot) > 0,
+        'atmosphere_very_cold': (entry['Flags2'] & Flags2VeryCold) > 0,
+        'atmosphere_very_hot': (entry['Flags2'] & Flags2VeryHot) > 0,
+        'glide_mode': (entry['Flags2'] & Flags2GlideMode) > 0,
+        'on_foot_in_hangar': (entry['Flags2'] & Flags2OnFootInHangar) > 0,
+        'on_foot_social_space': (entry['Flags2'] & Flags2OnFootSocialSpace) > 0,
+        'on_foot_exterior': (entry['Flags2'] & Flags2OnFootExterior) > 0,
+        'is_tele_multicrew': (entry['Flags2'] & Flags2TeleMulticrew) > 0,
+        'is_physical_multicrew': (entry['Flags2'] & Flags2PhysicalMulticrew) > 0,
+        'fsd_hyperspace_charge': (entry['Flags2'] & Flags2FsdHyperjumpCharging) > 0,
+#        'npc_active': (entry['Flags2'] & Flags2NpcActive) > 0,
+#        'supercruise_overcharge_active': (entry['Flags2'] & Flags2SupercruiseOvercharge) > 0,
+#        'supercruise_assist_active': (entry['Flags2'] & Flags2SupercruiseAssist) > 0,
+    }
 
 
 def start_api() -> None:
