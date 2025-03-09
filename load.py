@@ -248,6 +248,9 @@ def load_config() -> None:
 
 
 def dashboard_entry(cmdr, is_beta, entry):
+    if 'Flags2' not in entry or 'Flags' not in entry:
+        return
+
     this.data = {
         # Flags
         'gear_down': (entry['Flags'] & FlagsLandingGearDown) > 0,
