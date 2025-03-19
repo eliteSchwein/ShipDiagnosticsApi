@@ -101,9 +101,8 @@ Flags2BreathableAtmosphere = 1 << 16
 Flags2TeleMulticrew = 1 << 17
 Flags2PhysicalMulticrew = 1 << 18
 Flags2FsdHyperjumpCharging = 1 << 19
-#Flags2NpcActive = 1 << 20
-#Flags2SupercruiseOvercharge = 1 << 21
-#Flags2SupercruiseAssist = 1 << 22
+Flags2SupercruiseOvercharge = 1 << 20
+Flags2SupercruiseAssist = 1 << 21
 
 # JSON Data
 this.data = {
@@ -160,9 +159,8 @@ this.data = {
     'is_tele_multicrew': False,
     'is_physical_multicrew': False,
     'fsd_hyperspace_charge': False,
-#    'npc_active': False,
-#    'supercruise_overcharge_active': False,
-#    'supercruise_assist_active': False,
+    'supercruise_overcharge_active': False,
+    'supercruise_assist_active': False,
 }
 
 
@@ -304,9 +302,8 @@ def dashboard_entry(cmdr, is_beta, entry):
         'is_tele_multicrew': (entry['Flags2'] & Flags2TeleMulticrew) > 0,
         'is_physical_multicrew': (entry['Flags2'] & Flags2PhysicalMulticrew) > 0,
         'fsd_hyperspace_charge': (entry['Flags2'] & Flags2FsdHyperjumpCharging) > 0,
-#        'npc_active': (entry['Flags2'] & Flags2NpcActive) > 0,
-#        'supercruise_overcharge_active': (entry['Flags2'] & Flags2SupercruiseOvercharge) > 0,
-#        'supercruise_assist_active': (entry['Flags2'] & Flags2SupercruiseAssist) > 0,
+        'supercruise_overcharge_active': (entry['Flags2'] & Flags2SupercruiseOvercharge) > 0,
+        'supercruise_assist_active': (entry['Flags2'] & Flags2SupercruiseAssist) > 0,
     }
 
 
