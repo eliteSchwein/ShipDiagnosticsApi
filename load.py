@@ -26,9 +26,9 @@ this.ip: str = None
 this.no_proxy: bool = False
 
 # Settings
-this.port_entry: nb.Entry = None
-this.ip_entry: nb.Entry = None
-this.no_proxy_entry: nb.Entry = None
+this.port_entry: ttk.Entry = None
+this.ip_entry: ttk.Entry = None
+this.no_proxy_entry: ttk.Checkbutton = None
 this.port_tk: tk.StringVar = tk.StringVar(master=None, value="6009")
 this.ip_tk: tk.StringVar = tk.StringVar(master=None, value="127.0.0.1")
 this.no_proxy_tk: tk.BooleanVar = tk.BooleanVar(master=None, value=False)
@@ -182,14 +182,15 @@ def plugin_prefs(parent: tk.Tk, cmdr: str, is_beta: bool) -> tk.Frame:
     nb.Label(frame, text="API Server Settings").grid(padx=10, sticky=tk.W)
     ttk.Separator(frame, orient=tk.HORIZONTAL).grid(columnspan=2, padx=10, pady=2, sticky=tk.EW, row=2)
     nb.Label(frame, text="Server Port:").grid(column=0, padx=10, sticky=tk.W, row=3)
-    this.port_entry = nb.Entry(frame, textvariable=this.port_tk).grid(column=1, padx=10, pady=2, sticky=tk.EW, row=3)
+    this.port_entry = ttk.Entry(frame, textvariable=this.port_tk)
+    this.port_entry.grid(column=1, padx=10, pady=2, sticky=tk.EW, row=3)
     nb.Label(frame, text="No Proxy:").grid(column=0, padx=10, sticky=tk.W, row=4)
-    this.no_proxy_entry = nb.Checkbutton(frame, variable=this.no_proxy_tk).grid(column=1, padx=10, pady=2, sticky=tk.EW,
-                                                                                row=4)
+    this.no_proxy_entry = ttk.Checkbutton(frame, variable=this.no_proxy_tk)
+    this.no_proxy_entry.grid(column=1, padx=10, pady=2, sticky=tk.EW, row=4)
     ttk.Separator(frame, orient=tk.HORIZONTAL).grid(columnspan=2, padx=10, pady=2, sticky=tk.EW, row=5)
     nb.Label(frame, text="Full Address to the API:").grid(column=0, padx=10, sticky=tk.W, row=6)
-    this.ip_entry = nb.Entry(frame, textvariable=this.ip_tk, state="readonly").grid(column=1, padx=10, pady=2,
-                                                                                    sticky=tk.EW, row=6)
+    this.ip_entry = ttk.Entry(frame, textvariable=this.ip_tk, state="readonly")
+    this.ip_entry.grid(column=1, padx=10, pady=2, sticky=tk.EW, row=6)
 
     return frame
 
@@ -207,9 +208,10 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
 
 def plugin_stop() -> None:
-    this.api_server.server_close()
-    this.api_server.shutdown()
-    this.api_server = None
+    if this.api_server is not None:
+        this.api_server.shutdown()
+        this.api_server.server_close()
+        this.api_server = None
 
     if this.thread:
         this.thread.join(timeout=5)  # Set a timeout for join
@@ -363,7 +365,7 @@ def worker() -> None:
             ip = '127.0.0.1'
 
         logger.info(f'launch api server: http://{ip}:{this.port}')
-        this.api_server = StoppableHTTPServer(('0.0.0.0', int(this.port)), ApiServer)
+        this.api_server = StoppableHTTPServer((ip, int(this.port)), ApiServer)
 
         this.api_server.run()
 
